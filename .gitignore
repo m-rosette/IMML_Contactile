@@ -1,0 +1,16 @@
+# ros2 build folders
+build
+install
+log
+
+# vscode
+.vscode
+
+# python cache
+**/*/__pycache__
+
+# python venv
+venv
+
+docker-compose.yml
+.devcontainer
