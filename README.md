@@ -12,7 +12,12 @@ cd path/to/repo
 docker build - < .docker/Dockerfile -t osrf/ros:humble-desktop-full --no-cache
 ```
 
-3. Run the docker container:
+3. Enable visuals to be shown on the local host computer:
+```
+xhost +local:root
+```
+
+4. Create the docker container:
 ```
 ./run_docker.bash
 ```
