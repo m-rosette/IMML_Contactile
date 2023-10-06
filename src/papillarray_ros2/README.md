@@ -1,0 +1,1 @@
+Refer to this file to identify the messages and service types: https://contactile.com/wp-content/uploads/2023/09/PTSROS_2.0_MAN_MAR23.pdf
