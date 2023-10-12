@@ -1,10 +1,10 @@
-Header header
+std_msgs/Header header
 int32 id
-float32 x0
-float32 y0
-float32 z0
-float32 x1
-float32 y1
-float32 z1
+float32 dx
+float32 dy
+float32 dz
+float32 fx
+float32 fy
+float32 fz
 bool in_contact
 int32 slip_state

@@ -9,14 +9,14 @@
 #include "rclcpp/rclcpp.hpp"
 
 // Messages
-#include <papillarray_ros_v2/PillarState.h>
-#include <papillarray_ros_v2/SensorState.h>
+#include <papillarray_ros2/msg/pillar_state.hpp>
+#include <papillarray_ros2/msg/sensor_state.hpp>
 
 // Services
-#include <papillarray_ros_v2/StartSlipDetection.h>
-#include <papillarray_ros_v2/StopSlipDetection.h>
-#include <papillarray_ros_v2/BiasRequest.h>
-//#include <papillarray_ros_v2/SetSamplingRate.h>
+#include <papillarray_ros2/srv/start_slip_detection.hpp>
+#include <papillarray_ros2/srv/stop_slip_detection.hpp>
+#include <papillarray_ros2/srv/bias_request.hpp>
+//#include <papillarray_ros2/SetSamplingRate.h>
 
 #ifdef __unix__
 typedef unsigned char byte;
@@ -32,10 +32,12 @@ typedef unsigned char byte;
 #include <PTSDKSensor.h>
 #endif
 
-class PapillArrayNode {
+class PapillArrayNode : rclcpp::Node
+{
 public:
 	// Constructor
-	PapillArrayNode(ros::NodeHandle& nh);
+	// PapillArrayNode(rclcpp::NodeHandle& nh);
+	PapillArrayNode() : Node("papillarray_ros2")
 
 	// Destructor
 	~PapillArrayNode() {
@@ -65,23 +67,23 @@ private:
 	std::vector<std::unique_ptr<PTSDKSensor> > sensors_;
 
 	// Sensor publishers
-	std::vector<ros::Publisher> sensor_pubs_;
+	std::vector<rclcpp::Publisher> sensor_pubs_;
 
 	// Services
-	ros::ServiceServer start_sd_srv_;
-	ros::ServiceServer stop_sd_srv_;
-	ros::ServiceServer send_bias_request_srv_;
+	rclcpp::ServiceServer start_sd_srv_;
+	rclcpp::ServiceServer stop_sd_srv_;
+	rclcpp::ServiceServer send_bias_request_srv_;
 
 	// Service callback functions
-	bool startSlipDetectionSrvCallback(papillarray_ros_v2::StartSlipDetection::Request &req,
-					papillarray_ros_v2::StartSlipDetection::Response &resp);
-	bool stopSlipDetectionSrvCallback(papillarray_ros_v2::StopSlipDetection::Request &req,
-					papillarray_ros_v2::StopSlipDetection::Response &resp);
-	bool sendBiasRequestSrvCallback(papillarray_ros_v2::BiasRequest::Request &req,
-					papillarray_ros_v2::BiasRequest::Response &resp);
+	bool startSlipDetectionSrvCallback(papillarray_ros2::StartSlipDetection::Request &req,
+					papillarray_ros2::StartSlipDetection::Response &resp);
+	bool stopSlipDetectionSrvCallback(papillarray_ros2::StopSlipDetection::Request &req,
+					papillarray_ros2::StopSlipDetection::Response &resp);
+	bool sendBiasRequestSrvCallback(papillarray_ros2::BiasRequest::Request &req,
+					papillarray_ros2::BiasRequest::Response &resp);
 
 	// Load parameters from launch file
-	void loadParams(ros::NodeHandle& nh);
+	void loadParams(rclcpp::NodeHandle& nh);
 };
 
 #endif // PAPILLARRAY_ROS_NODE_H_

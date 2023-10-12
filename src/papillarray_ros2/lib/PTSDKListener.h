@@ -28,7 +28,7 @@
 #include <cstdint>
 #include <stdint.h>
 #include <pthread.h>
-#define BYTE byte
+#define BYTE uint8_t
 #define DWORD uint32_t
 #define HANDLE int
 #endif
