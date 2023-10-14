@@ -1,10 +1,10 @@
 #include <papillarray_ros2_node.hpp>
 
-PapillArrayNode::PapillArrayNode()
-: Node("papillarray_ros2")
+PapillArrayNode::PapillArrayNode() 
+: Node("papillarray_ros2"),
+listener_(true)
 {
 	// rclcpp::NodeHandle& nh) : listener_(true) { // listener_ argument: isLogging to .csv file; Log file written to /home/.ros/Logs
-
 
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Loading parameters...\n");
 	loadParams();
@@ -30,7 +30,7 @@ PapillArrayNode::PapillArrayNode()
 	// Start services
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting services...");
 	std::string service_name = "/hub_" + std::to_string(hub_id_) + "/start_slip_detection";
-	start_sd_srv_ = this->create_service<startSlipDetectionSrvCallback>(service_name, &PapillArrayNode::startSlipDetectionSrvCallback);
+	start_sd_srv_ = this->create_service<papillarray_ros2::srv::StartSlipDetection>(service_name, &startSlipDetectionSrvCallback);
 	// start_sd_srv_ = advertiseService(service_name,&PapillArrayNode::startSlipDetectionSrvCallback,this);
 	if (rclcpp::service::exists(service_name, true)) {
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started %s service", service_name.c_str());
@@ -38,23 +38,23 @@ PapillArrayNode::PapillArrayNode()
 		RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "%s service not advertised", service_name.c_str());
 	}
 
-	service_name = "/hub_" + std::to_string(hub_id_) + "/stop_slip_detection";
-	stop_sd_srv_ = this->create_service<stopSlipDetectionSrvCallback>(service_name, &PapillArrayNode::stopSlipDetectionSrvCallback);
-	// stop_sd_srv_ = advertiseService(service_name,&PapillArrayNode::stopSlipDetectionSrvCallback,this);
-	if (rclcpp::service::exists(service_name, true)) {
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started %s service", service_name.c_str());
-	} else {
-		RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "%s service not advertised", service_name.c_str());
-	}
+	// service_name = "/hub_" + std::to_string(hub_id_) + "/stop_slip_detection";
+	// stop_sd_srv_ = this->create_service<papillarray_ros2::srv::StopSlipDetection>(service_name, &stopSlipDetectionSrvCallback);
+	// // stop_sd_srv_ = advertiseService(service_name,&PapillArrayNode::stopSlipDetectionSrvCallback,this);
+	// if (rclcpp::service::exists(service_name, true)) {
+	// 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started %s service", service_name.c_str());
+	// } else {
+	// 	RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "%s service not advertised", service_name.c_str());
+	// }
 
-	service_name = "/hub_" + std::to_string(hub_id_) + "/send_bias_request";
-	send_bias_request_srv_ = this->create_service<sendBiasRequestSrvCallback>(service_name, &PapillArrayNode::sendBiasRequestSrvCallback);
-	// send_bias_request_srv_ = advertiseService(service_name,&PapillArrayNode::sendBiasRequestSrvCallback,this);
-	if (rclcpp::service::exists(service_name, true)) {
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started %s service", service_name.c_str());
-	} else {
-		RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "%s service not advertised", service_name.c_str());
-	}
+	// service_name = "/hub_" + std::to_string(hub_id_) + "/send_bias_request";
+	// send_bias_request_srv_ = this->create_service<papillarray_ros2::srv::BiasRequest>(service_name, &sendBiasRequestSrvCallback);
+	// // send_bias_request_srv_ = advertiseService(service_name,&PapillArrayNode::sendBiasRequestSrvCallback,this);
+	// if (rclcpp::service::exists(service_name, true)) {
+	// 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started %s service", service_name.c_str());
+	// } else {
+	// 	RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "%s service not advertised", service_name.c_str());
+	// }
 
 	// Start listener
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Connecting to %s port...", port_.c_str());
@@ -140,11 +140,11 @@ void PapillArrayNode::updateData() {
 	for (int sensor_id = 0; sensor_id < sensors_.size(); sensor_id++) {
 		papillarray_ros2::msg::SensorState ss_msg;
 
-		//RCLCPP_INFO("N pillars: %d", sensors_[sensor_id]->getNPillar());
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "N pillars: %d", sensors_[sensor_id]->getNPillar());
 		std_msgs::msg::Header h;
-		auto time = rclcpp::Time::now();
-		h.stamp.sec = time.sec;
-		h.stamp.nsec = time.nsec;
+		auto time = rclcpp::Clock().now();
+		h.stamp.sec = time.seconds();
+		h.stamp.nanosec = time.nanoseconds();
 		ss_msg.header = h;
 
 		long timestamp_us = sensors_[sensor_id]->getTimestamp_us();
@@ -211,7 +211,7 @@ void PapillArrayNode::updateData() {
 			ss_msg.pillars.push_back(ps_msg);
 
 			if(pillar_id == 0){
-				//RCLCPP_INFO("From C++API: %.2f; From ROS: %.2f\n",pillar_f[2], ps_msg.fZ);
+				//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "From C++API: %.2f; From ROS: %.2f\n",pillar_f[2], ps_msg.fZ);
 			}
 		}
 
@@ -220,27 +220,27 @@ void PapillArrayNode::updateData() {
 	}
 }
 
-bool PapillArrayNode::startSlipDetectionSrvCallback(papillarray_ros2::StartSlipDetection::Request &req,
-						papillarray_ros2::StartSlipDetection::Response &resp) {
-	RCLCPP_INFO("startSlipDetection callback");
+bool startSlipDetectionSrvCallback(const std::shared_ptr<papillarray_ros2::srv::StartSlipDetection::Request> req,
+						std::shared_ptr<papillarray_ros2::srv::StartSlipDetection::Response> resp) {
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "startSlipDetection callback");
 	resp.result = listener_.startSlipDetection();
-	rclcpp::Duration(0.1).sleep(); // wait
+	rclcpp::Duration::from_seconds(0.1); // wait
 	return resp.result;
 }
 
-bool PapillArrayNode::stopSlipDetectionSrvCallback(papillarray_ros2::StopSlipDetection::Request &req,
-						   papillarray_ros2::StopSlipDetection::Response &resp) {
-	RCLCPP_INFO("stopSlipDetection callback");
+bool stopSlipDetectionSrvCallback(const std::shared_ptr<papillarray_ros2::srv::StopSlipDetection::Request> req,
+						std::shared_ptr<papillarray_ros2::srv::StopSlipDetection::Response> resp){
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "stopSlipDetection callback");
 	resp.result = listener_.stopSlipDetection();
-	rclcpp::Duration(0.1).sleep(); // wait
+	rclcpp::Duration::from_seconds(0.1); // wait
 	return resp.result;
 }
 
-bool PapillArrayNode::sendBiasRequestSrvCallback(papillarray_ros2::BiasRequest::Request &req,
-						 papillarray_ros2::BiasRequest::Response &resp) {
-	RCLCPP_INFO("sendBiasRequest callback");
+bool sendBiasRequestSrvCallback(const std::shared_ptr<papillarray_ros2::srv::BiasRequest::Request> req,
+						std::shared_ptr<papillarray_ros2::srv::BiasRequest::Response> resp) {
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sendBiasRequest callback");
 	resp.result = listener_.sendBiasRequest();
-	rclcpp::Duration(0.1).sleep(); // wait
+	rclcpp::Duration::from_seconds(0.1); // wait
 	return resp.result;
 }
 
@@ -251,7 +251,7 @@ int main(int argc, char **argv) {
 	// rclcpp::Node& nh("~");
 	auto nh = std::make_shared<rclcpp::Node>("papillarray_ros2");
 
-	PapillArrayNode papill_array_node();
+	PapillArrayNode papill_array_node;
 
 	rclcpp::Rate loop_rate(papill_array_node.getSamplingRate());
 	loop_rate.sleep();

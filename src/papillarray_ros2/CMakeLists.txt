@@ -33,6 +33,12 @@ install(
   DESTINATION include/${PROJECT_NAME}
 )
 
+# Dont know if I need to include this...
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${rclcpp_LIBRARIES}
+#   libPTSDK.a
+# )
+
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PillarState.msg"
   "msg/SensorState.msg"

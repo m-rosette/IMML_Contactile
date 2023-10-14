@@ -1,5 +1,5 @@
-#ifndef PAPILLARRAY_ROS_V2_NODE_H_
-#define PAPILLARRAY_ROS_V2_NODE_H_
+#ifndef PAPILLARRAY_ROS2_NODE_H_
+#define PAPILLARRAY_ROS2_NODE_H_
 
 #include <stdio.h>
 
@@ -33,7 +33,7 @@ typedef unsigned char byte;
 #include <PTSDKSensor.h>
 #endif
 
-class PapillArrayNode : rclcpp::Node
+class PapillArrayNode : public rclcpp::Node
 {
 public:
 	// Constructor
@@ -63,23 +63,23 @@ private:
 
 	PTSDKListener listener_;
 	std::vector<std::unique_ptr<PTSDKSensor> > sensors_;
-
+	
 	// Sensor publishers
-	rclcpp::Publisher<std_msgs::msg::String> sensor_pubs_;
-	// rclcpp::Publisher<std::vector> sensor_pubs_;
+	rclcpp::Publisher<std_msgs::msg::String>::SharedPtr sensor_pubs_; // This one works
+	// rclcpp::Publisher<std::vector::vector>::SharedPtr sensor_pubs_; // This is the style I want to work
 
 	// Services
-	rclcpp::Service start_sd_srv_;
-	rclcpp::Service stop_sd_srv_;
-	rclcpp::Service send_bias_request_srv_;
+	rclcpp::Service<papillarray_ros2::srv::StartSlipDetection>::SharedPtr start_sd_srv_;
+	rclcpp::Service<papillarray_ros2::srv::StopSlipDetection>::SharedPtr stop_sd_srv_;
+	rclcpp::Service<papillarray_ros2::srv::BiasRequest>::SharedPtr send_bias_request_srv_;
 
-	// Service callback functions
-	bool startSlipDetectionSrvCallback(papillarray_ros2::srv::StartSlipDetection &req,
-					papillarray_ros2::srv::StartSlipDetection::Response &resp);
-	bool stopSlipDetectionSrvCallback(papillarray_ros2::srv::StopSlipDetection::Request &req,
-					papillarray_ros2::srv::StopSlipDetection::Response &resp);
-	bool sendBiasRequestSrvCallback(papillarray_ros2::srv::BiasRequest::Request &req,
-					papillarray_ros2::srv::BiasRequest::Response &resp);
+	// // Service callback functions
+	// bool startSlipDetectionSrvCallback(const std::shared_ptr<papillarray_ros2::srv::StartSlipDetection::Request> req,
+	// 				std::shared_ptr<papillarray_ros2::srv::StartSlipDetection::Response> resp);
+	// bool stopSlipDetectionSrvCallback(const std::shared_ptr<papillarray_ros2::srv::StopSlipDetection::Request> req,
+	// 				std::shared_ptr<papillarray_ros2::srv::StopSlipDetection::Response> resp);
+	// bool sendBiasRequestSrvCallback(const std::shared_ptr<papillarray_ros2::srv::BiasRequest::Request> req,
+	// 				std::shared_ptr<papillarray_ros2::srv::BiasRequest::Response> resp);
 
 	// Load parameters from launch file
 	void loadParams();
